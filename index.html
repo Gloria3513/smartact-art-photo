@@ -204,11 +204,41 @@
     </section>
 
     <!-- Step 3: Generate -->
-    <div class="text-center mb-8 py-2">
-      <button id="generate-btn" class="bg-gradient-to-r from-sa-teal to-sa-tealDark hover:from-sa-tealDark hover:to-[#155f63] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-4 px-14 rounded-2xl transition-all text-base shadow-lg shadow-sa-teal/30 hover:shadow-sa-teal/40 hover:-translate-y-0.5 active:translate-y-0">
-        ✨ AI 이미지 생성하기
+    <div class="text-center mb-6 py-2">
+      <button id="generate-btn" style="background:linear-gradient(to right,#22989D,#1b7c80)" class="disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-4 px-14 rounded-2xl transition-all text-base shadow-lg hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0">
+        ✨ API로 자동 생성하기
       </button>
-      <p class="text-xs text-gray-400 mt-3">Gemini API로 처리 · 생성에 10~30초 소요</p>
+      <p class="text-xs text-gray-400 mt-2">내 Gemini API 키로 처리 · 10~30초 소요</p>
+    </div>
+
+    <!-- Gemini 직접 사용 패널 -->
+    <div id="gemini-panel" class="hidden mb-8">
+      <div class="bg-gradient-to-br from-blue-50 to-slate-50 border-2 border-blue-200 rounded-2xl p-5">
+        <div class="flex items-start gap-3 mb-4">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-black text-sm" style="background:#4285F4">G</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="font-bold text-gray-900 text-sm">Gemini 앱에서 직접 해보기</h3>
+              <span class="text-xs bg-green-100 text-green-700 font-semibold px-2 py-0.5 rounded-full">무료 · API 키 없이</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-0.5">아래 프롬프트를 복사하고, gemini.google.com에서 사진과 함께 붙여넣으세요.</p>
+          </div>
+        </div>
+        <pre id="gemini-prompt-text" class="bg-white border border-blue-100 rounded-xl p-4 text-xs text-gray-700 whitespace-pre-wrap leading-relaxed mb-4 max-h-44 overflow-y-auto font-sans"></pre>
+        <div class="flex gap-2">
+          <button onclick="copyGeminiPrompt()" id="gemini-copy-btn" class="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold bg-white border-2 border-blue-300 text-blue-700 py-2.5 rounded-xl hover:bg-blue-50 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
+            프롬프트 복사
+          </button>
+          <a href="https://gemini.google.com" target="_blank" class="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold text-white py-2.5 rounded-xl transition-colors hover:opacity-90" style="background:#4285F4">
+            Gemini 앱 열기
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+          </a>
+        </div>
+        <div class="mt-3 bg-blue-50 rounded-lg px-3 py-2">
+          <p class="text-xs text-blue-700">📌 <span class="font-semibold">① 프롬프트 복사</span> → <span class="font-semibold">② Gemini 앱 열기</span> → <span class="font-semibold">③ 사진 업로드</span> → <span class="font-semibold">④ 붙여넣기 후 전송</span></p>
+        </div>
+      </div>
     </div>
 
     <!-- Results -->
@@ -760,6 +790,72 @@ function setupProductUploaders(count, title) {
 }
 
 // ═══════════════════════════════════════════════════════
+// GEMINI 직접 사용 패널
+// ═══════════════════════════════════════════════════════
+function buildGeminiPrompt(themeId) {
+  const t = THEMES[themeId];
+  if (!t) return '';
+  if (t.fixedPrompt) return t.fixedPrompt;
+  const map = {
+    aiVirtualStyling: () => {
+      const v = $('v-virtualStyling')?.value.trim();
+      return `[이 사진을 첨부하고 전송하세요]\n\n이 사진 속 인물의 스타일을 바꿔줘.\n\n요청사항: ${v || '원하는 스타일을 입력해주세요\n예) 한복 입은 여성을 오피스 정장을 입고 사무실에서 일하는 모습으로 바꿔줘.'}`;
+    },
+    aiAccessoryFitting: () => {
+      const v = $('v-accessoryFitting')?.value.trim();
+      return `[인물 사진 + 액세서리 제품 사진을 함께 첨부하세요]\n\n이 사진 속 인물에게 첨부한 액세서리를 자연스럽게 착용시켜줘.\n\n요청사항: ${v || '예) 모델에게 이 귀걸이를 자연스럽게 착용시켜줘'}`;
+    },
+    aiClothingFitting: () => {
+      const v = $('v-clothingFitting')?.value.trim();
+      return `[인물 사진 + 의류 사진을 함께 첨부하세요]\n\n이 사진 속 인물에게 첨부한 의류를 체형에 맞게 자연스럽게 입혀줘.\n\n요청사항: ${v || '예) 모델에게 이 티셔츠를 입혀줘'}`;
+    },
+    aiMultiStyling: () => {
+      const v = $('v-multiStyling')?.value.trim();
+      return `[인물 사진 + 제품 사진들을 모두 첨부하세요]\n\n이 사진 속 인물에게 첨부한 제품들을 착용시켜 풀코디를 완성해줘.\n\n요청사항: ${v || '예) 모델에게 이 옷과 선글라스를 모두 착용시켜줘'}`;
+    },
+    aiBgRemoval: () => {
+      const v = $('v-bgRemoval')?.value.trim();
+      return `[이 사진을 첨부하고 전송하세요]\n\n이 사진의 배경을 바꿔줘.\n\n원하는 배경: ${v || '원하는 배경을 입력해주세요\n예) 프랑스 파리의 에펠탑 앞 / 배경을 투명하게'}`;
+    },
+    aiObjectRemoval: () => {
+      const v = $('v-objectRemoval')?.value.trim();
+      return `[이 사진을 첨부하고 전송하세요]\n\n이 사진에서 특정 부분을 지우고, 빈 공간을 자연스럽게 채워줘.\n\n제거할 대상: ${v || '제거하고 싶은 대상을 입력해주세요\n예) 사진 왼쪽의 파란 자동차 / 내 뒤에 있는 사람'}`;
+    },
+    aiImageExpansion: () => {
+      const v = $('v-imageExpansion')?.value.trim();
+      return `[이 사진을 첨부하고 전송하세요]\n\n이 사진을 확장하고 빈 공간을 자연스럽게 채워줘.\n\n확장 방향: ${v || '예) 가로로 2배 넓게 확장해줘'}`;
+    },
+    aiStyleTransfer: () => {
+      const v = $('v-styleTransfer')?.value.trim();
+      return `[이 사진을 첨부하고 전송하세요]\n\n이 사진을 예술 스타일로 변환해줘.\n\n원하는 스타일: ${v || '예) 반 고흐의 유화 스타일 / 일본 애니메이션 스타일'}`;
+    },
+    imageCompositing: () => {
+      const v = $('v-imageCompositing')?.value.trim();
+      return `[합성할 두 사진을 모두 첨부하세요]\n\n두 사진을 자연스럽게 합성해줘.\n\n요청사항: ${v || '예) 첫 번째 사진의 인물을 두 번째 사진의 배경에 자연스럽게 배치해줘'}`;
+    },
+  };
+  return (map[themeId] || (() => '이 이미지를 편집해줘.'))();
+}
+
+function updateGeminiPanel() {
+  const panel = $('gemini-panel');
+  if (!S.themeId) { panel.classList.add('hidden'); return; }
+  $('gemini-prompt-text').textContent = buildGeminiPrompt(S.themeId);
+  panel.classList.remove('hidden');
+}
+
+function copyGeminiPrompt() {
+  const text = $('gemini-prompt-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = $('gemini-copy-btn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg> 복사됨!`;
+    btn.classList.add('!text-green-700', '!border-green-300');
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('!text-green-700', '!border-green-300'); }, 2000);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
 // GENERATE
 // ═══════════════════════════════════════════════════════
 async function handleGenerate() {
@@ -900,7 +996,8 @@ function resetApp() {
   document.querySelectorAll('[id^="opt-"]').forEach(p => p.classList.add('hidden'));
   EL.productSection.classList.add('hidden');
   EL.resultsSection.classList.add('hidden'); EL.resultsGrid.innerHTML = '';
-  EL.generateBtn.disabled = false; EL.generateBtn.textContent = '✨ 이미지 생성하기';
+  EL.generateBtn.disabled = false; EL.generateBtn.textContent = '✨ API로 자동 생성하기';
+  $('gemini-panel').classList.add('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -970,6 +1067,12 @@ function bindEvents() {
     if (theme.products > 0) setupProductUploaders(theme.products, theme.productTitle);
     const opt = $(`opt-${S.themeId}`);
     if (opt) opt.classList.remove('hidden');
+    updateGeminiPanel();
+  });
+
+  // 텍스트 입력 시 Gemini 패널 실시간 업데이트
+  document.querySelectorAll('[id^="v-"]').forEach(el => {
+    el.addEventListener('input', updateGeminiPanel);
   });
 
   // Generate & reset
