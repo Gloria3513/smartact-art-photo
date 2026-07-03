@@ -914,7 +914,7 @@ async function runGenerate(card, apiKey) {
       parts.push({ inlineData: { mimeType: 'image/png', data: img.split(',')[1] } });
     });
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
     const payload = {
       contents: [{ parts }],
       systemInstruction: { parts: [{ text: 'You are an expert image editing AI. Your only output must be the edited image. Do not generate any text, only image data.' }] },
