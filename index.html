@@ -97,6 +97,7 @@
   <div class="max-w-5xl mx-auto px-4 flex gap-0">
     <button class="tab-btn active px-5 py-3.5 text-sm" data-tab="editor">✦ AI 이미지 편집</button>
     <button class="tab-btn px-5 py-3.5 text-sm text-gray-500" data-tab="prompts">📋 챗GPT 프롬프트 22선</button>
+    <button class="tab-btn px-5 py-3.5 text-sm text-gray-500" data-tab="build">🔧 제미나이로 앱 만들기</button>
   </div>
 </div>
 
@@ -298,6 +299,101 @@
 
     <!-- Prompt cards -->
     <div id="prompt-list" class="space-y-3"></div>
+  </div>
+
+  <!-- ══ TAB 3: BUILD ══════════════════════════════════ -->
+  <div id="tab-build" class="hidden">
+
+    <!-- 상단 배너 -->
+    <div class="relative rounded-2xl overflow-hidden p-8 mb-7 text-white" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">
+      <div class="relative z-10 max-w-lg">
+        <p class="text-yellow-300 font-semibold text-xs tracking-widest mb-3 uppercase">SMARTACT · AI App Builder</p>
+        <h2 class="text-3xl font-bold mb-3 leading-tight">이 앱을<br>제미나이로 만드세요</h2>
+        <p class="text-white/75 text-sm leading-relaxed">소스코드를 복사해서 제미나이에 붙여넣으면<br>제미나이가 이 앱을 그대로 실행하거나 커스터마이징해줍니다.</p>
+      </div>
+      <div class="absolute -right-6 -top-6 w-48 h-48 rounded-full bg-white/5 pointer-events-none"></div>
+      <div class="absolute right-6 -bottom-12 w-64 h-64 rounded-full bg-white/5 pointer-events-none"></div>
+    </div>
+
+    <!-- 사용 방법 -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+      <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <span class="text-blue-600">📋</span> 사용 방법
+      </h3>
+      <ol class="space-y-4">
+        <li class="flex gap-3">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">1</span>
+          <div>
+            <p class="font-semibold text-gray-900 text-sm">소스코드 복사</p>
+            <p class="text-xs text-gray-500 mt-0.5">아래 버튼을 눌러 이 앱의 전체 HTML 코드를 클립보드에 복사합니다.</p>
+          </div>
+        </li>
+        <li class="flex gap-3">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">2</span>
+          <div>
+            <p class="font-semibold text-gray-900 text-sm">Gemini Canvas 열기</p>
+            <p class="text-xs text-gray-500 mt-0.5">gemini.google.com → 새 채팅 → 입력창에 붙여넣기 (Ctrl+V / Cmd+V)</p>
+          </div>
+        </li>
+        <li class="flex gap-3">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">3</span>
+          <div>
+            <p class="font-semibold text-gray-900 text-sm">명령 전송</p>
+            <p class="text-xs text-gray-500 mt-0.5">예시: <span class="font-mono bg-blue-50 px-1.5 py-0.5 rounded text-blue-700">"이 앱을 실행해줘"</span> 또는 <span class="font-mono bg-blue-50 px-1.5 py-0.5 rounded text-blue-700">"배경색을 내 브랜드 색상으로 바꿔줘"</span></p>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <!-- 복사 버튼 카드 -->
+    <div class="bg-white rounded-2xl border-2 border-blue-200 shadow-sm p-6 mb-6" style="background:linear-gradient(135deg,#eff6ff,#f8faff)">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-black text-base shadow-sm" style="background:#1a73e8">G</div>
+        <div>
+          <h3 class="font-bold text-gray-900">앱 소스코드 전체 복사</h3>
+          <p class="text-xs text-gray-500">HTML 단일 파일 · 약 1,100줄 · Tailwind CDN 포함</p>
+        </div>
+      </div>
+
+      <!-- 코드 미리보기 -->
+      <div id="code-preview" class="bg-gray-900 rounded-xl p-4 mb-4 text-xs text-green-400 font-mono leading-relaxed max-h-48 overflow-y-auto">
+        <span class="text-gray-500">// 복사 버튼을 누르면 전체 코드가 로드됩니다...</span>
+      </div>
+
+      <div class="flex gap-3">
+        <button onclick="copyAppCode()" id="copy-code-btn" class="flex-1 flex items-center justify-center gap-2 text-sm font-bold text-white py-3.5 rounded-xl transition-all hover:opacity-90 shadow-md" style="background:linear-gradient(to right,#1a73e8,#0d47a1)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
+          <span id="copy-code-label">전체 소스코드 복사</span>
+        </button>
+        <a href="https://gemini.google.com" target="_blank" class="flex items-center justify-center gap-1.5 px-5 text-sm font-bold text-white py-3.5 rounded-xl transition-all hover:opacity-90 shadow-md" style="background:#4285F4">
+          Gemini 열기
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- 커스터마이징 아이디어 -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2"><span>💡</span> 이런 걸 시켜보세요</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div onclick="copyCustomPrompt(this)" class="cursor-pointer group bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-xl p-3.5 transition-all">
+          <p class="text-xs font-semibold text-gray-700 group-hover:text-blue-700">"이 앱을 실행해줘"</p>
+          <p class="text-xs text-gray-400 mt-0.5 group-hover:text-blue-400">복사 후 누르면 바로 복사</p>
+        </div>
+        <div onclick="copyCustomPrompt(this)" class="cursor-pointer group bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-xl p-3.5 transition-all">
+          <p class="text-xs font-semibold text-gray-700 group-hover:text-blue-700">"테마 카드에 '한복 체험' 기능도 추가해줘"</p>
+          <p class="text-xs text-gray-400 mt-0.5 group-hover:text-blue-400">기능 추가 요청</p>
+        </div>
+        <div onclick="copyCustomPrompt(this)" class="cursor-pointer group bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-xl p-3.5 transition-all">
+          <p class="text-xs font-semibold text-gray-700 group-hover:text-blue-700">"배경색과 브랜드 로고를 우리 회사 것으로 바꿔줘"</p>
+          <p class="text-xs text-gray-400 mt-0.5 group-hover:text-blue-400">브랜딩 커스터마이징</p>
+        </div>
+        <div onclick="copyCustomPrompt(this)" class="cursor-pointer group bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-xl p-3.5 transition-all">
+          <p class="text-xs font-semibold text-gray-700 group-hover:text-blue-700">"챗GPT 프롬프트 탭은 빼고, AI 편집 탭만 남겨줘"</p>
+          <p class="text-xs text-gray-400 mt-0.5 group-hover:text-blue-400">단순화 요청</p>
+        </div>
+      </div>
+    </div>
   </div>
 
 </main>
@@ -640,7 +736,7 @@ const EL = {
   captureBtn: $('capture-btn'), closeCameraBtn: $('close-camera-btn'),
   hiddenCanvas: $('hidden-canvas'),
   tabBtns: document.querySelectorAll('.tab-btn'),
-  tabEditor: $('tab-editor'), tabPrompts: $('tab-prompts'),
+  tabEditor: $('tab-editor'), tabPrompts: $('tab-prompts'), tabBuild: $('tab-build'),
   promptSearch: $('prompt-search'), promptList: $('prompt-list'),
 };
 
@@ -867,6 +963,57 @@ function copyGeminiPrompt() {
     btn.innerHTML = `<svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg> 복사됨!`;
     btn.classList.add('!text-green-700', '!border-green-300');
     setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('!text-green-700', '!border-green-300'); }, 2000);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// BUILD TAB — 앱 소스코드 복사
+// ═══════════════════════════════════════════════════════
+let _cachedSource = null;
+
+async function loadCodePreview() {
+  if (_cachedSource) return;
+  try {
+    const r = await fetch(location.href);
+    _cachedSource = await r.text();
+    const preview = $('code-preview');
+    const lines = _cachedSource.split('\n').slice(0, 12).join('\n');
+    preview.innerHTML = `<span class="text-gray-500">// AI 이미지 스튜디오 — SMARTACT (${_cachedSource.split('\n').length}줄)</span>\n` +
+      lines.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '\n<span class="text-gray-500">... (전체 코드 복사 버튼으로 확인)</span>';
+  } catch(e) {
+    $('code-preview').innerHTML = '<span class="text-red-400">// 미리보기 로드 실패 — 복사 버튼은 정상 작동합니다</span>';
+  }
+}
+
+async function copyAppCode() {
+  const btn = $('copy-code-btn');
+  const label = $('copy-code-label');
+  try {
+    if (!_cachedSource) {
+      label.textContent = '로딩 중...';
+      const r = await fetch(location.href);
+      _cachedSource = await r.text();
+    }
+    await navigator.clipboard.writeText(_cachedSource);
+    label.textContent = '✓ 복사 완료! Gemini에 붙여넣기 하세요';
+    btn.style.background = 'linear-gradient(to right,#16a34a,#15803d)';
+    setTimeout(() => {
+      label.textContent = '전체 소스코드 복사';
+      btn.style.background = 'linear-gradient(to right,#1a73e8,#0d47a1)';
+    }, 3000);
+  } catch(e) {
+    label.textContent = '복사 실패 — 다시 시도해주세요';
+    setTimeout(() => { label.textContent = '전체 소스코드 복사'; }, 2000);
+  }
+}
+
+function copyCustomPrompt(el) {
+  const text = el.querySelector('p.font-semibold').textContent.replace(/^"|"$/g, '');
+  navigator.clipboard.writeText(text).then(() => {
+    const p = el.querySelector('p.text-gray-400, p.text-blue-400');
+    const orig = p.textContent;
+    p.textContent = '✓ 복사됨!';
+    setTimeout(() => { p.textContent = orig; }, 1500);
   });
 }
 
@@ -1108,6 +1255,8 @@ function bindEvents() {
       const tab = btn.dataset.tab;
       EL.tabEditor.classList.toggle('hidden', tab !== 'editor');
       EL.tabPrompts.classList.toggle('hidden', tab !== 'prompts');
+      EL.tabBuild.classList.toggle('hidden', tab !== 'build');
+      if (tab === 'build') loadCodePreview();
     });
   });
 
