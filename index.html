@@ -124,7 +124,7 @@
             <p class="text-sm text-gray-400 mt-1">JPG, PNG, WEBP</p>
           </div>
           <img id="main-preview" class="hidden w-full h-full object-cover" alt="미리보기">
-          <input type="file" id="main-upload" accept="image/*">
+          <input type="file" id="main-upload" accept="image/*" class="hidden">
         </div>
         <div class="space-y-4">
           <p class="text-sm text-gray-600 leading-relaxed">정면을 바라보는 선명한 얼굴 사진을 사용하면 AI가 가장 정확하게 인식합니다.</p>
@@ -774,7 +774,7 @@ function setupProductUploaders(count, title) {
         <p class="text-xs text-gray-400">제품 ${i}</p>
       </div>
       <img id="prod-prev-${i}" class="hidden w-full h-full object-cover" alt="">
-      <input type="file" id="prod-upload-${i}" accept="image/*">
+      <input type="file" id="prod-upload-${i}" accept="image/*" class="hidden">
     </div>`).join('');
 
   for (let i = 1; i <= count; i++) {
